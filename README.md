@@ -35,14 +35,6 @@ curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers
 http://localhost:8080/providers
 ```
 
-GET /providers/{first_name}_{last_name}
-```
-# Curl
-curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers/John_Doe'
-# Request URL
-http://localhost:8080/providers/John_Doe
-```
-
 GET /availabilities
 ```
 # Curl
