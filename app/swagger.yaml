@@ -1,0 +1,207 @@
+swagger: '2.0'
+info:
+  title: Medical Appointment Booking Application
+  version: "0.1"
+  description: Simple API example to make medical appointments
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /providers:
+    get:
+      tags: [Providers]
+      operationId: routes.get_providers
+      summary: Get all providers
+      parameters:
+        - $ref: '#/parameters/clinic_id_query'
+      responses:
+        200:
+          description: Return providers
+          schema:
+            type: object
+            properties:
+              providers:
+                type: array
+                items:
+                  $ref: '#/definitions/Provider'
+        404:
+          description: No providers exist
+  /providers/{first_name}_{last_name}:
+    get:
+      tags: [Providers]
+      operationId: routes.get_provider
+      summary: Get a single provider
+      parameters:
+        - $ref: '#/parameters/clinic_id_query'
+        - name: first_name
+          in: path
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: last_name
+          in: path
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+      responses:
+        200:
+          description: Return provider
+          schema:
+            $ref: '#/definitions/Provider'
+        404:
+          description: Provider does not exist
+  /availabilities:
+    get:
+      tags: [Availability]
+      operationId: routes.get_availabilities
+      summary: Get all availabilities
+      parameters:
+        - $ref: '#/parameters/clinic_id_query'
+        - name: provider_first_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: provider_last_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: start_time
+          in: query
+          required: true
+          type: string
+          format: date-time
+        - name: end_time
+          in: query
+          required: true
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: Return availabilities
+          schema:
+            type: object
+            properties:
+              availabilities:
+                type: array
+                items:
+                  $ref: '#/definitions/Availability'
+        404:
+          description: Provider does not exist
+        405:
+          description: Time slot format is invalid
+
+  /appointments:
+    put:
+      tags: [Appointment]
+      operationId: routes.put_appointment
+      summary: Create or update an appointment
+      parameters:
+        - $ref: '#/parameters/clinic_id_query'
+        - name: patient_first_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: patient_last_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: provider_first_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: provider_last_name
+          in: query
+          required: true
+          type: string
+          pattern: "^[a-zA-Z0-9-]+$"
+        - name: start_time
+          in: query
+          required: true
+          type: string
+          format: date-time
+        - name: end_time
+          in: query
+          required: true
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: New appointment created
+        201:
+          description: Appointment updated
+        404:
+          description: Provider does not exist
+        405:
+          description: Time slot format is invalid
+        409:
+          description: Appointment overlaps another appointment
+
+parameters:
+  clinic_id_path:
+    name: clinic_id
+    description: Clinic's Unique identifier
+    in: path
+    type: string
+    required: true
+    pattern: "^[a-zA-Z0-9-]+$"
+  clinic_id_query:
+    name: clinic_id
+    description: Clinic's Unique identifier
+    in: query
+    type: string
+    required: true
+    pattern: "^[a-zA-Z0-9-]+$"
+  patient_id:
+    name: patient_id
+    description: Patient's Unique identifier
+    in: path
+    type: string
+    required: true
+    pattern: "^[a-zA-Z0-9-]+$"
+    
+definitions:
+  Error:
+    type: string
+    description: Error message
+    example: "Error message"
+  Provider:
+    type: object
+    required:
+      - first_name
+      - last_name
+    properties:
+      created:
+        type: string
+        format: date-time
+        description: Creation time
+        example: "2022-06-02T00:30:00"
+        readOnly: true
+      updated:
+        type: string
+        format: date-time
+        description: Creation time
+        example: "2022-06-02T00:30:00"
+        readOnly: true
+      first_name:
+        type: string
+        description: Patient's first name
+        example: "John"
+        minLength: 1
+        maxLength: 50
+      last_name:
+        type: string
+        description: Patient's last name
+        example: "Doe"
+        minLength: 1
+        maxLength: 50
+  Availability:
+      type: string
+      format: date-time
+      description: Availability time slot
+      example: "2022-06-02 00:00:00"
