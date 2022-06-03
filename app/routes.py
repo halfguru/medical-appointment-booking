@@ -3,38 +3,29 @@ API routes defining the REST commands actions
 """
 from appointment import *
 from utils import *
-from datetime import datetime, timedelta
+from datetime import datetime
+import logging
 from server import db
 from database.models import Appointment, Patient, Provider
 from database.schemas import ProviderSchema
 
 
-def get_provider(clinic_id, first_name, last_name):
-    """
-    Get single provider given clinic id and provider name
-    """
-    all_providers_filtered = Provider.query.filter(db.and_(Provider.clinic_id.like(clinic_id),
-                                                           Provider.first_name.like(first_name),
-                                                           Provider.last_name.like(last_name))).all()
-    if not all_providers_filtered:
-        return create_response(status_code=404, error="Provider doesn't exist")
-    result = ProviderSchema(many=True).dump(all_providers_filtered)[0]
-    return result
+DEFAULT_CLINIC_ID = "Clinic1"
 
 
-def get_providers(clinic_id):
+def get_providers():
     """
-    Get all providers given clinic id
+    Get all providers
     """
-    all_providers_filtered = Provider.query.filter(Provider.clinic_id.like(clinic_id)).all()
+    logging.info("GET providers")
+    all_providers_filtered = Provider.query.all()
     if not all_providers_filtered:
         return create_response(status_code=404, error="No providers exist")
     result = ProviderSchema(many=True).dump(all_providers_filtered)
     return create_response(status_code=200, data_field="providers", data=result)
 
 
-def put_appointment(clinic_id,
-                    patient_first_name,
+def put_appointment(patient_first_name,
                     patient_last_name,
                     provider_first_name,
                     provider_last_name,
@@ -43,21 +34,20 @@ def put_appointment(clinic_id,
     """
     Patient book appointment for a given provider and time interval
     """
+    logging.info("PUT appointment")
     # Check if provider exist
-    all_providers_filtered = Provider.query.filter(db.and_(Provider.clinic_id.like(clinic_id),
-                                                           Provider.first_name.like(provider_first_name),
+    all_providers_filtered = Provider.query.filter(db.and_(Provider.first_name.like(provider_first_name),
                                                            Provider.last_name.like(provider_last_name))).all()
 
     if not all_providers_filtered:
         return create_response(status_code=404, error="Provider doesn't exist")
 
-    all_patients_filtered = Patient.query.filter(db.and_(Patient.clinic_id.like(clinic_id),
-                                                         Patient.first_name.like(patient_first_name),
+    all_patients_filtered = Patient.query.filter(db.and_(Patient.first_name.like(patient_first_name),
                                                          Patient.last_name.like(patient_last_name))).all()
 
     # Check if patient exist
     if not all_patients_filtered:
-        new_patient = Patient(clinic_id=clinic_id,
+        new_patient = Patient(clinic_id=DEFAULT_CLINIC_ID,
                               first_name=patient_first_name,
                               last_name=patient_last_name,
                               created=datetime.now(),
@@ -69,7 +59,7 @@ def put_appointment(clinic_id,
 
     # Check if appointment time overlaps with provider other appointments
     appointment_overlaps(Appointment.clinic_id,
-                         clinic_id,
+                         DEFAULT_CLINIC_ID,
                          Appointment.provider_first_name,
                          provider_first_name,
                          Appointment.provider_last_name,
@@ -78,7 +68,7 @@ def put_appointment(clinic_id,
                          end_time)
 
     # Create appointment
-    new_appointment = Appointment(clinic_id=clinic_id,
+    new_appointment = Appointment(clinic_id=DEFAULT_CLINIC_ID,
                                   start=datetime.fromisoformat(start_time),
                                   end=datetime.fromisoformat(end_time),
                                   patient_first_name=patient_first_name,
@@ -93,17 +83,16 @@ def put_appointment(clinic_id,
     return create_response(status_code=200, data="New appointment created")
 
 
-def get_availabilities(clinic_id,
-                       provider_first_name,
+def get_availabilities(provider_first_name,
                        provider_last_name,
                        start_time,
                        end_time):
     """
     Get all available time slots given clinic id, provider name and time interval
     """
+    logging.info("GET availabilities")
     # Check if provider exist
-    all_providers_filtered = Provider.query.filter(db.and_(Provider.clinic_id.like(clinic_id),
-                                                           Provider.first_name.like(provider_first_name),
+    all_providers_filtered = Provider.query.filter(db.and_(Provider.first_name.like(provider_first_name),
                                                            Provider.last_name.like(provider_last_name))).all()
 
     if not all_providers_filtered:
@@ -115,8 +104,7 @@ def get_availabilities(clinic_id,
     # Get all available time slots given the time interval input
     available_date_times = get_time_slots(datetime.fromisoformat(start_time), datetime.fromisoformat(end_time))
 
-    all_appointments_filtered = (Appointment.query.filter(db.and_(Appointment.clinic_id.like(clinic_id),
-                                                                  Appointment.provider_first_name.like(provider_first_name),
+    all_appointments_filtered = (Appointment.query.filter(db.and_(Appointment.provider_first_name.like(provider_first_name),
                                                                   Appointment.provider_last_name.like(provider_last_name))).all())
 
     # Get all unavailable time slots from current appointments

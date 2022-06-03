@@ -11,7 +11,7 @@ from utils import *
 APPOINTMENT_MINUTE_CHUNK = 15
 
 
-def get_time_slots(start_time, end_time):
+def get_time_slots(start_time, end_time, min_interval=APPOINTMENT_MINUTE_CHUNK):
     """
     Get a list of 15 minute time slots for a time interval
     """
@@ -19,7 +19,7 @@ def get_time_slots(start_time, end_time):
     dt_end_time = end_time
     available_date_times = [dt_start_time]
     while dt_start_time < dt_end_time:
-        dt_start_time += timedelta(minutes=15)
+        dt_start_time += timedelta(minutes=min_interval)
         available_date_times.append(dt_start_time)
     return available_date_times
 
@@ -30,8 +30,13 @@ def appointment_valid(start_time, end_time):
 
     If appointment time is not valid, create an error response
     """
-    start_time = datetime.fromisoformat(start_time)
-    end_time = datetime.fromisoformat(end_time)
+    try:
+        start_time = datetime.fromisoformat(start_time)
+        end_time = datetime.fromisoformat(end_time)
+    except ValueError:
+        response = create_response(status_code=405, error='Time format is not valid')
+        abort(response)
+
     if start_time.minute % APPOINTMENT_MINUTE_CHUNK != 0:
         response = create_response(status_code=405, error='Start time is not in 15 minute chunks')
         abort(response)

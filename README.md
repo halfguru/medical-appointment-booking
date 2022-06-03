@@ -16,8 +16,8 @@ $ python ./app/app.py
 
 You can build the application as a Docker image and run it:
 ```
-$ docker build -t connexion-example .
-$ docker run -d -p 8080:8080 connexion-example
+$ docker build -t appointment-rest .
+$ docker run -d -p 8080:8080 appointment-rest
 ```
 
 ## Documentation
@@ -30,33 +30,33 @@ Here are some examples for the REST commands:
 GET /providers
 ```
 # Curl
-curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers?clinic_id=Clinic1'
+curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers'
 # Request URL
-http://localhost:8080/providers?clinic_id=Clinic1
+http://localhost:8080/providers
 ```
 
 GET /providers/{first_name}_{last_name}
 ```
 # Curl
-curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers/Simon_Ho?clinic_id=Clinic1'
+curl -X GET --header 'Accept: application/json' 'http://localhost:8080/providers/John_Doe'
 # Request URL
-http://localhost:8080/providers/Simon_Ho?clinic_id=Clinic1
+http://localhost:8080/providers/John_Doe
 ```
 
 GET /availabilities
 ```
 # Curl
-curl -X GET --header 'Accept: application/json' 'http://localhost:8080/availabilities?clinic_id=Clinic1&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02&end_time=2022-06-03'
+curl -X GET --header 'Accept: application/json' 'http://localhost:8080/availabilities?provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02&end_time=2022-06-03'
 # Request URL
-http://localhost:8080/availabilities?clinic_id=Clinic1&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02&end_time=2022-06-03
+http://localhost:8080/availabilities?provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02&end_time=2022-06-03
 ```
 
 PUT /appointments
 ```
 # Curl
-curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' 'http://localhost:8080/appointments?clinic_id=Clinic1&patient_first_name=Simon&patient_last_name=Ho&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-03%2013%3A00%3A00&end_time=2022-06-03%2013%3A15%3A00'
+curl -X PUT --header 'Content-Type: application/json' --header 'Accept: application/json' 'http://localhost:8080/appointments?patient_first_name=Simon&patient_last_name=Ho&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02%2014%3A00%3A00&end_time=2022-06-03%2014%3A15%3A00'
 # Request URL
-http://localhost:8080/appointments?clinic_id=Clinic1&patient_first_name=Simon&patient_last_name=Ho&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-03%2013%3A00%3A00&end_time=2022-06-03%2013%3A15%3A00
+http://localhost:8080/appointments?patient_first_name=Simon&patient_last_name=Ho&provider_first_name=John&provider_last_name=Doe&start_time=2022-06-02%2014%3A00%3A00&end_time=2022-06-03%2014%3A15%3A00
 ```
 
 ## Database

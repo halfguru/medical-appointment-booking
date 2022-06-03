@@ -13,8 +13,6 @@ paths:
       tags: [Providers]
       operationId: routes.get_providers
       summary: Get all providers
-      parameters:
-        - $ref: '#/parameters/clinic_id_query'
       responses:
         200:
           description: Return providers
@@ -27,37 +25,12 @@ paths:
                   $ref: '#/definitions/Provider'
         404:
           description: No providers exist
-  /providers/{first_name}_{last_name}:
-    get:
-      tags: [Providers]
-      operationId: routes.get_provider
-      summary: Get a single provider
-      parameters:
-        - $ref: '#/parameters/clinic_id_query'
-        - name: first_name
-          in: path
-          required: true
-          type: string
-          pattern: "^[a-zA-Z0-9-]+$"
-        - name: last_name
-          in: path
-          required: true
-          type: string
-          pattern: "^[a-zA-Z0-9-]+$"
-      responses:
-        200:
-          description: Return provider
-          schema:
-            $ref: '#/definitions/Provider'
-        404:
-          description: Provider does not exist
   /availabilities:
     get:
       tags: [Availability]
       operationId: routes.get_availabilities
       summary: Get all availabilities
       parameters:
-        - $ref: '#/parameters/clinic_id_query'
         - name: provider_first_name
           in: query
           required: true
@@ -99,7 +72,6 @@ paths:
       operationId: routes.put_appointment
       summary: Create or update an appointment
       parameters:
-        - $ref: '#/parameters/clinic_id_query'
         - name: patient_first_name
           in: query
           required: true
@@ -143,20 +115,6 @@ paths:
           description: Appointment overlaps another appointment
 
 parameters:
-  clinic_id_path:
-    name: clinic_id
-    description: Clinic's Unique identifier
-    in: path
-    type: string
-    required: true
-    pattern: "^[a-zA-Z0-9-]+$"
-  clinic_id_query:
-    name: clinic_id
-    description: Clinic's Unique identifier
-    in: query
-    type: string
-    required: true
-    pattern: "^[a-zA-Z0-9-]+$"
   patient_id:
     name: patient_id
     description: Patient's Unique identifier
